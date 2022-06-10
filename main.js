@@ -43,19 +43,39 @@ function update_canvas(){
 function setup(){
     canvas = createCanvas(280, 280);
     canvas.center();
-    background('white')
+    background('white');
+    canvas.mouseReleased(classifyCanvas);
 }
 
 function draw(){
+    strokeWeight(13);
+    stroke(0);
+    if(mouseIsPressed){
+        line(pmouseX, pmouseY, mouseX, mouseY);
+    }
     check_sketch();
     if (drawn_sketch == sketch){
         answer_holder = "set";
         score = score+1;
         document.getElementsByName("score").innerHTML = "Score: " + score;
     }
+
 }
 
+function preload(){
+    classifier = ml5.imageClassifier('DoodleNet');
+}
 
+function classifyCanvas(){
+    classifier.classify(canvas, gotResult);
+}
 
+function gotResult(error, results){
+    if(error){
+        console.error(error);
+    }
+    console.log(results);
+    document.getElementById("your_sketch").innerHTML = "Your Sketch: " + results[0].label;
+    document.getElementById("confidence").innerHTML = "Confidence: " + Math.round(results[0].confidence*100) + "%";
 
-
+}
